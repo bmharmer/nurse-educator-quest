@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nurse Educator Quest System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #4CAF50, #2196F3, #FF9800, #E91E63);
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+            text-align: center;
+        }
+
+        /* Quest Map Screen */
+        .quest-map {
+            display: block;
+        }
+
+        .quest-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .quest-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quest-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--quest-color);
+        }
+
+        .quest-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+            border-color: var(--quest-color);
+        }
+
+        .quest-card.completed {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border-color: #28a745;
+        }
+
+        .quest-card.locked {
+            background: linear-gradient(135deg, #f8f9fa, #dee2e6);
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .quest-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .quest-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .quest-description {
+            color: #6c757d;
+            font-size: 0.95em;
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+
+        .quest-progress {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+        }
+
+        .quest-difficulty {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .difficulty-basic { background: #d1ecf1; color: #0c5460; }
+        .difficulty-intermediate { background: #fff3cd; color: #856404; }
+        .difficulty-advanced { background: #f8d7da; color: #721c24; }
+
+        .quest-status {
+            font-weight: 600;
+        }
+
+        .status-available { color: #28a745; }
+        .status-completed { color: #6f42c1; }
+        .status-locked { color: #6c757d; }
+
+        /* Badge Display */
+        .badges-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .badges-title {
+            font-size: 1.3em;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .badges-grid {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            border-radius: 12px;
+            min-width: 100px;
+            transition: all 0.3s ease;
+        }
+
+        .badge.earned {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #856404;
+            animation: badgeGlow 2s infinite alternate;
+        }
+
+        .badge.locked {
+            background: #e9ecef;
+            color: #6c757d;
+        }
+
+        @keyframes badgeGlow {
+            from { box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+            to { box-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
+        }
+
+        .badge-icon {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .badge-name {
+            font-size: 0.8em;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        /* Game Screen */
+        .game-screen {
+            display: none;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .back-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .back-btn:hover {
+            background: #5a6268;
+        }
+
+        .quest-info {
+            text-align: center;
+        }
+
+        .quest-name {
+            font-size: 1.5em;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .question-counter {
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .score-display {
+            text-align: right;
+        }
+
+        .score-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .score-label {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
+        /* Question Styles */
+        .question-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: left;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+
+        .scenario-box {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border-left: 5px solid #2196F3;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-style: italic;
+        }
+
+        .question {
+            font-size: 1.3em;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .options {
+            display: grid;
+            gap: 15px;
+        }
+
+        .option {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .option.correct {
+            border-color: #4CAF50;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            animation: correctPulse 0.6s ease;
+        }
+
+        .option.incorrect {
+            border-color: #f44336;
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+            color: white;
+            animation: shake 0.6s ease;
+        }
+
+        @keyframes correctPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            line-height: 1.5;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Quest Complete Screen */
+        .quest-complete {
+            display: none;
+            text-align: center;
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            padding: 40px;
+            border-radius: 20px;
+            border: 3px solid #28a745;
+        }
+
+        .complete-title {
+            font-size: 2.5em;
+            color: #155724;
+            margin-bottom: 20px;
+        }
+
+        .complete-score {
+            font-size: 2em;
+            color: #2c3e50;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .new-badge {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            animation: newBadgeAnimation 1s ease;
+        }
+
+        @keyframes newBadgeAnimation {
+            0% { transform: scale(0.8) rotate(-10deg); opacity: 0; }
+            50% { transform: scale(1.1) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .return-btn {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .return-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(40, 167, 69, 0.3);
+        }
+
+        .category-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #FF6B6B, #ee5a24);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎓 Nurse Educator Quest System</h1>
+        <p class="subtitle">Master Assessment & Educational Technology Through Interactive Quests</p>
+        
+        <!-- Quest Map Screen -->
+        <div id="quest-map" class="quest-map">
+            <div class="badges-container">
+                <div class="badges-title">🏆 Achievement Badges</div>
+                <div class="badges-grid" id="badges-display">
+                    <!-- Badges will be populated here -->
+                </div>
+            </div>
+
+            <div class="quest-grid" id="quest-grid">
+                <!-- Quests will be populated here -->
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="game-screen">
+            <div class="game-header">
+                <button class="back-btn" onclick="returnToMap()">← Quest Map</button>
+                <div class="quest-info">
+                    <div class="quest-name" id="current-quest-name"></div>
+                    <div class="question-counter"><span id="current-question">1</span> of <span id="total-questions">5</span></div>
+                </div>
+                <div class="score-display">
+                    <div class="score-value" id="score">0</div>
+                    <div class="score-label">Score</div>
+                </div>
+            </div>
+
+            <div class="question-container">
+                <div class="category-badge" id="category"></div>
+                <div id="scenario"></div>
+                <div class="question" id="question-text"></div>
+                <div class="options" id="options"></div>
+                <div class="feedback" id="feedback"></div>
+                <button class="next-btn" id="next-btn">Next Question →</button>
+            </div>
+        </div>
+
+        <!-- Quest Complete Screen -->
+        <div id="quest-complete" class="quest-complete">
+            <div class="complete-title">🎉 Quest Complete!</div>
+            <div class="complete-score" id="final-score"></div>
+            <div id="badge-earned"></div>
+            <div id="completion-message"></div>
+            <button class="return-btn" onclick="returnToMap()">Return to Quest Map</button>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            completedQuests: [],
+            earnedBadges: [],
+            currentQuest: null,
+            currentQuestion: 0,
+            score: 0,
+            answered: false
+        };
+
+        // Badges Definition
+        const badges = {
+            'foundation-master': {
+                icon: '🏛️',
+                name: 'Foundation Master',
+                description: 'Complete the Assessment Foundations quest'
+            },
+            'tech-innovator': {
+                icon: '💻',
+                name: 'Tech Innovator',
+                description: 'Master educational technology integration'
+            },
+            'simulation-expert': {
+                icon: '🤖',
+                name: 'Simulation Expert',
+                description: 'Excel in simulation-based learning'
+            },
+            'ai-ethics-champion': {
+                icon: '🛡️',
+                name: 'AI Ethics Champion',
+                description: 'Navigate AI and ethics challenges'
+            },
+            'resource-strategist': {
+                icon: '💡',
+                name: 'Resource Strategist',
+                description: 'Make strategic educational decisions'
+            },
+            'quest-master': {
+                icon: '👑',
+                name: 'Quest Master',
+                description: 'Complete all available quests'
+            }
+        };
+
+        // Quests Definition
+        const quests = {
+            'foundations': {
+                title: 'Assessment Foundations',
+                icon: '🏛️',
+                description: 'Build your foundation in nursing education assessment principles and best practices.',
+                difficulty: 'basic',
+                color: '#4CAF50',
+                badge: 'foundation-master',
+                unlocks: ['tech-integration', 'simulation-mastery'],
+                questions: [
+                    {
+                        category: "Assessment Principles",
+                        question: "Which assessment approach is most appropriate for evaluating critical thinking skills in nursing students?",
+                        options: [
+                            "Multiple choice tests with single correct answers",
+                            "Case study analysis with written reflection",
+                            "Memorization-based quizzes",
+                            "True/false questions"
+                        ],
+                        correct: 1,
+                        explanation: "Case study analysis with written reflection allows students to demonstrate higher-order thinking skills, analyze complex situations, and justify their reasoning - all key components of critical thinking assessment."
+                    },
+                    {
+                        category: "Formative Assessment",
+                        question: "What is the key characteristic that distinguishes formative from summative assessment?",
+                        options: [
+                            "Formative assessments are always ungraded",
+                            "Formative assessments provide feedback to improve learning",
+                            "Formative assessments are shorter in duration",
+                            "Formative assessments only use technology tools"
+                        ],
+                        correct: 1,
+                        explanation: "The defining characteristic of formative assessment is that it provides ongoing feedback to both students and instructors to identify learning gaps and adjust instruction accordingly."
+                    },
+                    {
+                        category: "Assessment Design",
+                        question: "Which principle is most important when designing competency-based assessments for nursing students?",
+                        options: [
+                            "Align assessments with specific learning outcomes",
+                            "Make assessments as challenging as possible",
+                            "Include multiple question formats",
+                            "Use standardized test questions only"
+                        ],
+                        correct: 0,
+                        explanation: "Alignment between assessments and specific learning outcomes ensures that evaluations accurately measure whether students have achieved the intended competencies."
+                    },
+                    {
+                        category: "Feedback Strategies",
+                        question: "What type of feedback is most valuable for nursing student development?",
+                        options: [
+                            "Grades only",
+                            "Generic positive comments",
+                            "Specific, actionable feedback with improvement strategies",
+                            "Peer comparisons"
+                        ],
+                        correct: 2,
+                        explanation: "Specific, actionable feedback with clear improvement strategies helps students understand exactly what they did well and how to improve future performance."
+                    },
+                    {
+                        category: "Student Engagement",
+                        question: "Which strategy is most effective for maintaining student engagement in online nursing courses?",
+                        options: [
+                            "Requiring daily discussion posts",
+                            "Using varied interactive activities aligned with content",
+                            "Providing all content through video lectures",
+                            "Implementing strict participation policies"
+                        ],
+                        correct: 1,
+                        explanation: "Varied interactive activities that align with course content maintain engagement by appealing to different learning styles and keeping students actively involved."
+                    }
+                ]
+            },
+            'tech-integration': {
+                title: 'Technology Integration Mastery',
+                icon: '💻',
+                description: 'Master the art of integrating educational technology, from OER to AI ethics in nursing education.',
+                difficulty: 'intermediate',
+                color: '#2196F3',
+                badge: 'tech-innovator',
+                prerequisites: ['foundations'],
+                unlocks: ['ai-ethics'],
+                questions: [
+                    {
+                        category: "Open Educational Resources",
+                        question: "What is the primary advantage of using Creative Commons licensed materials in nursing education?",
+                        options: [
+                            "They are always free of cost",
+                            "They can be legally modified and redistributed",
+                            "They are automatically peer-reviewed",
+                            "They don't require attribution"
+                        ],
+                        correct: 1,
+                        explanation: "Creative Commons licenses allow educators to legally modify, adapt, and redistribute materials to better fit their specific educational needs while respecting copyright."
+                    },
+                    {
+                        category: "Microlearning",
+                        question: "Which characteristic makes microlearning particularly effective for busy nursing students?",
+                        options: [
+                            "Content can be consumed in short, focused sessions",
+                            "It requires less preparation time",
+                            "It eliminates the need for assessments",
+                            "It only works with video content"
+                        ],
+                        correct: 0,
+                        explanation: "Microlearning's bite-sized, focused approach allows nursing students to learn effectively during brief periods between clinical duties and other responsibilities."
+                    },
+                    {
+                        category: "Gamification",
+                        question: "What is the most important principle when implementing gamification in nursing education?",
+                        options: [
+                            "Make everything competitive",
+                            "Use as many game elements as possible",
+                            "Align game mechanics with learning objectives",
+                            "Focus only on points and badges"
+                        ],
+                        correct: 2,
+                        explanation: "Effective gamification requires thoughtful alignment between game mechanics and educational goals, ensuring that game elements enhance rather than distract from learning."
+                    },
+                    {
+                        category: "MOOCs and E-Learning",
+                        question: "What is a key consideration when recommending MOOCs to nursing students?",
+                        options: [
+                            "All MOOCs provide continuing education credits",
+                            "Evaluate content quality and relevance to nursing practice",
+                            "MOOCs are always self-paced",
+                            "They replace the need for hands-on clinical experience"
+                        ],
+                        correct: 1,
+                        explanation: "MOOCs vary widely in quality and relevance. Educators must evaluate content credibility, currency, and alignment with nursing competencies before recommendations."
+                    },
+                    {
+                        category: "Digital Literacy",
+                        question: "When teaching nursing students to evaluate online health information, what should be emphasized most?",
+                        options: [
+                            "Always trust .org websites",
+                            "Look for the most recent publication date",
+                            "Evaluate source credibility and evidence quality",
+                            "Use only government websites"
+                        ],
+                        correct: 2,
+                        explanation: "Critical evaluation of source credibility and evidence quality is essential for nursing professionals who must distinguish between reliable, evidence-based information and potentially misleading content."
+                    }
+                ]
+            },
+            'simulation-mastery': {
+                title: 'Simulation Excellence',
+                icon: '🤖',
+                description: 'Excel in simulation-based learning, OSCEs, standardized patients, and advanced simulation techniques.',
+                difficulty: 'intermediate',
+                color: '#FF9800',
+                badge: 'simulation-expert',
+                prerequisites: ['foundations'],
+                unlocks: ['resource-strategy'],
+                questions: [
+                    {
+                        category: "High-Fidelity Simulation",
+                        question: "What is the primary advantage of using high-fidelity simulation in nursing education?",
+                        options: [
+                            "It's less expensive than traditional methods",
+                            "Students can practice high-risk procedures safely",
+                            "It requires minimal instructor preparation",
+                            "It eliminates the need for clinical rotations"
+                        ],
+                        correct: 1,
+                        explanation: "High-fidelity simulation allows students to practice high-risk, low-frequency procedures in a safe environment where mistakes become learning opportunities without patient safety concerns."
+                    },
+                    {
+                        category: "OSCEs",
+                        scenario: "You're designing an OSCE station to assess nursing students' medication administration skills.",
+                        question: "Which element is most critical for ensuring valid assessment in this OSCE station?",
+                        options: [
+                            "Using expensive equipment",
+                            "Standardized scoring rubrics and trained evaluators",
+                            "Making the scenario as complex as possible",
+                            "Allowing unlimited time for completion"
+                        ],
+                        correct: 1,
+                        explanation: "Standardized scoring rubrics and trained evaluators ensure consistency, reliability, and validity in OSCE assessments, making results meaningful and fair across all students."
+                    },
+                    {
+                        category: "Standardized Patients",
+                        question: "What is the key advantage of using standardized patients over mannequins for communication skills assessment?",
+                        options: [
+                            "Lower cost and maintenance",
+                            "More realistic human interaction and emotional responses",
+                            "Easier to program different scenarios",
+                            "No need for training or preparation"
+                        ],
+                        correct: 1,
+                        explanation: "Standardized patients provide authentic human interaction, emotional responses, and communication dynamics that cannot be replicated by mannequins, especially for soft skills assessment."
+                    },
+                    {
+                        category: "Debriefing",
+                        question: "Which debriefing approach is most effective following a high-stress simulation scenario?",
+                        options: [
+                            "Immediate feedback focusing on mistakes",
+                            "Structured reflection using a debriefing model",
+                            "Allowing students to debrief themselves",
+                            "Moving quickly to the next scenario"
+                        ],
+                        correct: 1,
+                        explanation: "Structured debriefing using evidence-based models (like PEARLS or GAS) helps students process experiences, reflect on performance, and consolidate learning effectively."
+                    },
+                    {
+                        category: "Moulage and Realism",
+                        question: "When is it most appropriate to use moulage (realistic wound simulation) in nursing education?",
+                        options: [
+                            "In all simulation scenarios for realism",
+                            "Only when teaching wound care procedures",
+                            "When authentic context enhances learning objectives",
+                            "To make simulations more entertaining"
+                        ],
+                        correct: 2,
+                        explanation: "Moulage should be used strategically when authentic visual and tactile cues are essential for achieving specific learning objectives, not merely for dramatic effect."
+                    }
+                ]
+            },
+            'ai-ethics': {
+                title: 'AI & Ethics Navigator',
+                icon: '🛡️',
+                description: 'Navigate the complex landscape of AI in healthcare education, deepfakes, and ethical considerations.',
+                difficulty: 'advanced',
+                color: '#E91E63',
+                badge: 'ai-ethics-champion',
+                prerequisites: ['tech-integration'],
+                unlocks: ['resource-strategy'],
+                questions: [
+                    {
+                        category: "AI in Healthcare Education",
+                        question: "What is the most significant ethical concern when using AI-generated content in nursing education?",
+                        options: [
+                            "Cost of implementation",
+                            "Potential for bias and misinformation",
+                            "Students becoming too dependent on technology",
+                            "Difficulty in technical setup"
+                        ],
+                        correct: 1,
+                        explanation: "AI-generated content can perpetuate biases present in training data and may contain inaccuracies, making critical evaluation and human oversight essential in educational contexts."
+                    },
+                    {
+                        category: "Deepfake Technology",
+                        scenario: "You've created realistic deepfake videos of news reports about robots injuring nurses for educational purposes.",
+                        question: "What is the most important ethical consideration when using these materials in class?",
+                        options: [
+                            "Getting permission from the original news anchors",
+                            "Clear disclosure that content is artificially generated",
+                            "Using only positive scenarios",
+                            "Limiting viewing to small groups"
+                        ],
+                        correct: 1,
+                        explanation: "Transparency about AI-generated content is crucial to maintain trust, teach media literacy, and prevent students from being deceived about the nature of the material."
+                    },
+                    {
+                        category: "Academic Integrity",
+                        question: "How should nursing educators address student use of AI tools like ChatGPT for assignments?",
+                        options: [
+                            "Ban all AI tools completely",
+                            "Allow unlimited use without restrictions",
+                            "Establish clear guidelines for appropriate use",
+                            "Ignore the issue entirely"
+                        ],
+                        correct: 2,
+                        explanation: "Clear guidelines help students understand appropriate AI use while developing critical thinking skills and maintaining academic integrity in their nursing education."
+                    },
+                    {
+                        category: "Future Healthcare",
+                        question: "What should be the primary focus when preparing nursing students for AI integration in healthcare?",
+                        options: [
+                            "Technical programming skills",
+                            "Critical thinking and human-AI collaboration",
+                            "Resistance to technological change",
+                            "Memorizing AI capabilities"
+                        ],
+                        correct: 1,
+                        explanation: "Nurses need to develop critical thinking skills to work effectively with AI systems while maintaining the human aspects of nursing care that cannot be automated."
+                    },
+                    {
+                        category: "Ethical Decision Making",
+                        question: "When an AI system recommends a treatment that a nurse questions, what should be the primary consideration?",
+                        options: [
+                            "Always follow the AI recommendation",
+                            "Ignore AI completely and rely on intuition",
+                            "Apply clinical judgment while considering AI input",
+                            "Defer all decisions to physicians"
+                        ],
+                        correct: 2,
+                        explanation: "Nurses must develop the ability to critically evaluate AI recommendations using their clinical knowledge and judgment, treating AI as a tool rather than a replacement for professional expertise."
+                    }
+                ]
+            },
+            'resource-strategy': {
+                title: 'Strategic Resource Allocation',
+                icon: '💡',
+                description: 'Master complex decision-making for educational resource allocation and strategic planning.',
+                difficulty: 'advanced',
+                color: '#9C27B0',
+                badge: 'resource-strategist',
+                prerequisites: ['simulation-mastery', 'ai-ethics'],
+                questions: [
+                    {
+                        category: "Faculty Committee Decision",
+                        scenario: "Your nursing faculty committee has $70,000 to spend on educational improvements. Current challenges include: lack of pediatric clinical placements, low NCLEX scores in interprofessional communication and delegation, and limited simulation resources.",
+                        question: "Which option would provide the best return on educational investment?",
+                        options: [
+                            "High-fidelity CRNA intubation simulator ($65,000)",
+                            "Advanced cardiology e-learning platform ($45,000)",
+                            "Faculty CHSE certification training + basic pediatric simulator ($55,000)",
+                            "VR simulation platform from Oxford Medical UK ($70,000)"
+                        ],
+                        correct: 2,
+                        explanation: "CHSE certification enhances faculty simulation expertise while a pediatric simulator addresses the clinical placement gap. This combination directly targets identified educational needs and builds sustainable capacity."
+                    },
+                    {
+                        category: "Strategic Planning",
+                        scenario: "Your program needs to improve NCLEX pass rates specifically in areas of delegation and interprofessional communication.",
+                        question: "Which educational strategy would most effectively address these specific deficits?",
+                        options: [
+                            "Purchase more high-tech equipment",
+                            "Implement team-based simulation scenarios with structured debriefing",
+                            "Increase lecture hours on delegation theory",
+                            "Require additional clinical hours"
+                        ],
+                        correct: 1,
+                        explanation: "Team-based simulations with structured debriefing directly practice delegation and communication skills in realistic scenarios, targeting the specific NCLEX deficit areas identified."
+                    },
+                    {
+                        category: "Cost-Benefit Analysis",
+                        question: "When evaluating expensive educational technology, what should be the primary decision criterion?",
+                        options: [
+                            "Latest technology available",
+                            "Lowest cost option",
+                            "Alignment with specific learning outcomes and needs assessment",
+                            "What other schools are purchasing"
+                        ],
+                        correct: 2,
+                        explanation: "Educational technology investments should be driven by evidence-based needs assessment and clear alignment with learning outcomes, not trends or cost alone."
+                    },
+                    {
+                        category: "Sustainability Planning",
+                        scenario: "You're considering expanding simulation lab space versus investing in faculty development.",
+                        question: "Which factor is most critical for long-term program success?",
+                        options: [
+                            "Physical space always takes priority",
+                            "Faculty expertise and development capacity",
+                            "Having the newest equipment",
+                            "Matching competitors' facilities"
+                        ],
+                        correct: 1,
+                        explanation: "Faculty expertise and development capacity provide sustainable, long-term benefits that enhance all educational activities, not just simulation. Well-trained faculty can maximize any resources available."
+                    },
+                    {
+                        category: "Resource Optimization",
+                        question: "Your simulation lab is underutilized. What's the most effective strategy to maximize educational impact?",
+                        options: [
+                            "Purchase additional expensive equipment",
+                            "Reduce simulation activities to save costs",
+                            "Develop faculty skills and standardized simulation protocols",
+                            "Convert space to traditional classrooms"
+                        ],
+                        correct: 2,
+                        explanation: "Underutilization often stems from faculty comfort and standardized processes rather than equipment limitations. Developing faculty expertise and protocols maximizes existing resource impact."
+                    }
+                ]
+            }
+        };
+
+        // Initialize Game
+        function initializeGame() {
+            loadFromStorage();
+            displayBadges();
+            displayQuests();
+        }
+
+        // Storage Functions
+        function saveToStorage() {
+            const gameData = {
+                completedQuests: gameState.completedQuests,
+                earnedBadges: gameState.earnedBadges
+            };
+            // Using variable storage instead of localStorage for Canvas compatibility
+            window.gameData = gameData;
+        }
+
+        function loadFromStorage() {
+            if (window.gameData) {
+                gameState.completedQuests = window.gameData.completedQuests || [];
+                gameState.earnedBadges = window.gameData.earnedBadges || [];
+            }
+        }
+
+        // Badge Functions
+        function displayBadges() {
+            const badgesContainer = document.getElementById('badges-display');
+            badgesContainer.innerHTML = '';
+            
+            Object.keys(badges).forEach(badgeKey => {
+                const badge = badges[badgeKey];
+                const isEarned = gameState.earnedBadges.includes(badgeKey);
+                
+                const badgeElement = document.createElement('div');
+                badgeElement.className = `badge ${isEarned ? 'earned' : 'locked'}`;
+                badgeElement.innerHTML = `
+                    <div class="badge-icon">${badge.icon}</div>
+                    <div class="badge-name">${badge.name}</div>
+                `;
+                badgeElement.title = badge.description;
+                badgesContainer.appendChild(badgeElement);
+            });
+        }
+
+        function awardBadge(badgeKey) {
+            if (!gameState.earnedBadges.includes(badgeKey)) {
+                gameState.earnedBadges.push(badgeKey);
+                saveToStorage();
+                return true;
+            }
+            return false;
+        }
+
+        // Quest Functions
+        function displayQuests() {
+            const questGrid = document.getElementById('quest-grid');
+            questGrid.innerHTML = '';
+            
+            Object.keys(quests).forEach(questKey => {
+                const quest = quests[questKey];
+                const isCompleted = gameState.completedQuests.includes(questKey);
+                const isUnlocked = isQuestUnlocked(questKey);
+                
+                const questCard = document.createElement('div');
+                questCard.className = `quest-card ${isCompleted ? 'completed' : ''} ${!isUnlocked ? 'locked' : ''}`;
+                questCard.style.setProperty('--quest-color', quest.color);
+                
+                let statusText, statusClass;
+                if (isCompleted) {
+                    statusText = '✅ Completed';
+                    statusClass = 'status-completed';
+                } else if (isUnlocked) {
+                    statusText = '🚀 Available';
+                    statusClass = 'status-available';
+                } else {
+                    statusText = '🔒 Locked';
+                    statusClass = 'status-locked';
+                }
+                
+                questCard.innerHTML = `
+                    <div class="quest-icon">${quest.icon}</div>
+                    <div class="quest-title">${quest.title}</div>
+                    <div class="quest-description">${quest.description}</div>
+                    <div class="quest-progress">
+                        <span class="quest-difficulty difficulty-${quest.difficulty}">${quest.difficulty}</span>
+                        <span class="quest-status ${statusClass}">${statusText}</span>
+                    </div>
+                `;
+                
+                if (isUnlocked && !isCompleted) {
+                    questCard.onclick = () => startQuest(questKey);
+                }
+                
+                questGrid.appendChild(questCard);
+            });
+        }
+
+        function isQuestUnlocked(questKey) {
+            const quest = quests[questKey];
+            if (!quest.prerequisites) return true;
+            return quest.prerequisites.every(prereq => gameState.completedQuests.includes(prereq));
+        }
+
+        function startQuest(questKey) {
+            gameState.currentQuest = questKey;
+            gameState.currentQuestion = 0;
+            gameState.score = 0;
+            gameState.answered = false;
+            
+            document.getElementById('quest-map').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+            document.getElementById('quest-complete').style.display = 'none';
+            
+            document.getElementById('current-quest-name').textContent = quests[questKey].title;
+            document.getElementById('total-questions').textContent = quests[questKey].questions.length;
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const quest = quests[gameState.currentQuest];
+            const question = quest.questions[gameState.currentQuestion];
+            
+            document.getElementById('category').textContent = question.category;
+            document.getElementById('current-question').textContent = gameState.currentQuestion + 1;
+            
+            // Handle scenario if present
+            const scenarioContainer = document.getElementById('scenario');
+            if (question.scenario) {
+                scenarioContainer.innerHTML = `<div class="scenario-box"><strong>Scenario:</strong> ${question.scenario}</div>`;
+            } else {
+                scenarioContainer.innerHTML = '';
+            }
+            
+            document.getElementById('question-text').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.textContent = option;
+                optionElement.onclick = () => selectOption(index);
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            gameState.answered = false;
+        }
+
+        function selectOption(selectedIndex) {
+            if (gameState.answered) return;
+            
+            gameState.answered = true;
+            const quest = quests[gameState.currentQuest];
+            const question = quest.questions[gameState.currentQuestion];
+            const options = document.querySelectorAll('.option');
+            
+            options.forEach((option, index) => {
+                if (index === selectedIndex) {
+                    option.classList.add('selected');
+                }
+                option.style.pointerEvents = 'none';
+            });
+            
+            setTimeout(() => {
+                options[question.correct].classList.add('correct');
+                
+                if (selectedIndex === question.correct) {
+                    gameState.score += 20;
+                    showFeedback(true, question.explanation);
+                } else {
+                    options[selectedIndex].classList.add('incorrect');
+                    showFeedback(false, question.explanation);
+                }
+                
+                updateScore();
+                document.getElementById('next-btn').style.display = 'inline-block';
+            }, 500);
+        }
+
+        function showFeedback(isCorrect, explanation) {
+            const feedback = document.getElementById('feedback');
+            feedback.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+            feedback.innerHTML = `
+                <strong>${isCorrect ? '✅ Excellent!' : '❌ Not quite right'}</strong><br>
+                ${explanation}
+            `;
+            feedback.style.display = 'block';
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = gameState.score;
+        }
+
+        function nextQuestion() {
+            gameState.currentQuestion++;
+            const quest = quests[gameState.currentQuest];
+            
+            if (gameState.currentQuestion >= quest.questions.length) {
+                completeQuest();
+            } else {
+                loadQuestion();
+            }
+        }
+
+        function completeQuest() {
+            const questKey = gameState.currentQuest;
+            const quest = quests[questKey];
+            
+            // Mark quest as completed
+            if (!gameState.completedQuests.includes(questKey)) {
+                gameState.completedQuests.push(questKey);
+            }
+            
+            // Award badge
+            const badgeAwarded = awardBadge(quest.badge);
+            
+            // Check for quest master badge
+            if (gameState.completedQuests.length === Object.keys(quests).length) {
+                awardBadge('quest-master');
+            }
+            
+            saveToStorage();
+            
+            // Show completion screen
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('quest-complete').style.display = 'block';
+            
+            const percentage = (gameState.score / (quest.questions.length * 20)) * 100;
+            document.getElementById('final-score').textContent = `${percentage.toFixed(0)}% (${gameState.score}/${quest.questions.length * 20} points)`;
+            
+            if (badgeAwarded) {
+                const badge = badges[quest.badge];
+                document.getElementById('badge-earned').innerHTML = `
+                    <div class="new-badge">
+                        🎉 New Badge Earned! 🎉<br>
+                        <div style="font-size: 2em; margin: 10px 0;">${badge.icon}</div>
+                        <strong>${badge.name}</strong><br>
+                        <small>${badge.description}</small>
+                    </div>
+                `;
+            } else {
+                document.getElementById('badge-earned').innerHTML = '';
+            }
+            
+            let message;
+            if (percentage >= 90) {
+                message = "🌟 Outstanding mastery! You've demonstrated exceptional understanding of these concepts.";
+            } else if (percentage >= 70) {
+                message = "👏 Strong performance! You show solid grasp of the key principles.";
+            } else {
+                message = "📚 Keep learning! Review the concepts and try again to strengthen your understanding.";
+            }
+            
+            document.getElementById('completion-message').innerHTML = `<p style="font-size: 1.2em; margin: 20px 0;">${message}</p>`;
+        }
+
+        function returnToMap() {
+            document.getElementById('quest-map').style.display = 'block';
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('quest-complete').style.display = 'none';
+            
+            displayBadges();
+            displayQuests();
+        }
+
+        // Event Listeners
+        document.getElementById('next-btn').onclick = nextQuestion;
+
+        // Initialize the game when page loads
+        window.onload = initializeGame;
