@@ -139,7 +139,7 @@
             background: var(--quest-color);
         }
 
-        .quest-card:hover {
+        .quest-card:hover:not(.locked) {
             transform: translateY(-8px);
             box-shadow: 0 12px 25px rgba(0,0,0,0.15);
             border-color: var(--quest-color);
@@ -426,6 +426,15 @@
             border-radius: 15px;
             margin: 20px 0;
         }
+
+        .quest-locked-message {
+            text-align: center;
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
@@ -438,27 +447,27 @@
             <div class="badges-container">
                 <div class="badges-title">🏆 Achievement Badges</div>
                 <div class="badges-grid">
-                    <div class="badge">
+                    <div class="badge" id="badge-0">
                         <div class="badge-icon">🏛️</div>
                         <div class="badge-name">Foundation Master</div>
                     </div>
-                    <div class="badge">
+                    <div class="badge" id="badge-1">
                         <div class="badge-icon">💻</div>
                         <div class="badge-name">Tech Innovator</div>
                     </div>
-                    <div class="badge">
+                    <div class="badge" id="badge-2">
                         <div class="badge-icon">🤖</div>
                         <div class="badge-name">Simulation Expert</div>
                     </div>
-                    <div class="badge">
+                    <div class="badge" id="badge-3">
                         <div class="badge-icon">🛡️</div>
                         <div class="badge-name">AI Ethics Champion</div>
                     </div>
-                    <div class="badge">
+                    <div class="badge" id="badge-4">
                         <div class="badge-icon">💡</div>
                         <div class="badge-name">Resource Strategist</div>
                     </div>
-                    <div class="badge">
+                    <div class="badge" id="badge-5">
                         <div class="badge-icon">👑</div>
                         <div class="badge-name">Quest Master</div>
                     </div>
@@ -466,7 +475,7 @@
             </div>
 
             <div class="quest-grid">
-                <div class="quest-card" style="--quest-color: #4CAF50;" onclick="startQuest('foundations')">
+                <div class="quest-card" id="quest-0" style="--quest-color: #4CAF50;" onclick="startQuest('foundations', 0)">
                     <div class="quest-icon">🏛️</div>
                     <div class="quest-title">Assessment Foundations</div>
                     <div class="quest-description">Build your foundation in nursing education assessment principles and best practices.</div>
@@ -476,7 +485,7 @@
                     </div>
                 </div>
                 
-                <div class="quest-card locked" style="--quest-color: #2196F3;">
+                <div class="quest-card locked" id="quest-1" style="--quest-color: #2196F3;" onclick="startQuest('technology', 1)">
                     <div class="quest-icon">💻</div>
                     <div class="quest-title">Technology Integration Mastery</div>
                     <div class="quest-description">Master the art of integrating educational technology, from OER to AI ethics in nursing education.</div>
@@ -486,7 +495,7 @@
                     </div>
                 </div>
                 
-                <div class="quest-card locked" style="--quest-color: #FF9800;">
+                <div class="quest-card locked" id="quest-2" style="--quest-color: #FF9800;" onclick="startQuest('simulation', 2)">
                     <div class="quest-icon">🤖</div>
                     <div class="quest-title">Simulation Excellence</div>
                     <div class="quest-description">Excel in simulation-based learning, OSCEs, standardized patients, and advanced simulation techniques.</div>
@@ -496,7 +505,7 @@
                     </div>
                 </div>
                 
-                <div class="quest-card locked" style="--quest-color: #E91E63;">
+                <div class="quest-card locked" id="quest-3" style="--quest-color: #E91E63;" onclick="startQuest('aiethics', 3)">
                     <div class="quest-icon">🛡️</div>
                     <div class="quest-title">AI & Ethics Navigator</div>
                     <div class="quest-description">Navigate the complex landscape of AI in healthcare education, deepfakes, and ethical considerations.</div>
@@ -506,7 +515,7 @@
                     </div>
                 </div>
                 
-                <div class="quest-card locked" style="--quest-color: #9C27B0;">
+                <div class="quest-card locked" id="quest-4" style="--quest-color: #9C27B0;" onclick="startQuest('resources', 4)">
                     <div class="quest-icon">💡</div>
                     <div class="quest-title">Strategic Resource Allocation</div>
                     <div class="quest-description">Master complex decision-making for educational resource allocation and strategic planning.</div>
@@ -524,7 +533,7 @@
                 <button class="back-btn" onclick="returnToMap()">← Quest Map</button>
                 <div class="quest-info">
                     <div class="quest-name" id="current-quest-name">Assessment Foundations</div>
-                    <div class="question-counter"><span id="current-question">1</span> of <span id="total-questions">3</span></div>
+                    <div class="question-counter"><span id="current-question">1</span> of <span id="total-questions">5</span></div>
                 </div>
                 <div class="score-display">
                     <div class="score-value" id="score">0</div>
@@ -535,12 +544,8 @@
             <div class="question-container">
                 <div class="category-badge" id="category">Assessment Principles</div>
                 <div id="scenario"></div>
-                <div class="question" id="question-text">Which assessment approach is most appropriate for evaluating critical thinking skills in nursing students?</div>
+                <div class="question" id="question-text">Loading question...</div>
                 <div class="options" id="options">
-                    <div class="option" onclick="selectOption(0)">Multiple choice tests with single correct answers</div>
-                    <div class="option" onclick="selectOption(1)">Case study analysis with written reflection</div>
-                    <div class="option" onclick="selectOption(2)">Memorization-based quizzes</div>
-                    <div class="option" onclick="selectOption(3)">True/false questions</div>
                 </div>
                 <div class="feedback" id="feedback"></div>
                 <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question →</button>
@@ -554,9 +559,9 @@
             <div id="badge-earned">
                 <div class="new-badge">
                     🎉 New Badge Earned! 🎉<br>
-                    <div style="font-size: 2em; margin: 10px 0;">🏛️</div>
-                    <strong>Foundation Master</strong><br>
-                    <small>Complete the Assessment Foundations quest</small>
+                    <div style="font-size: 2em; margin: 10px 0;" id="new-badge-icon">🏛️</div>
+                    <strong id="new-badge-name">Foundation Master</strong><br>
+                    <small id="new-badge-desc">Complete the Assessment Foundations quest</small>
                 </div>
             </div>
             <div id="completion-message">
@@ -564,74 +569,456 @@
             </div>
             <button class="return-btn" onclick="returnToMap()">Return to Quest Map</button>
         </div>
+
+        <!-- Locked Quest Message -->
+        <div id="locked-message" class="quest-locked-message" style="display: none;">
+            <h3>🔒 Quest Locked</h3>
+            <p>Complete the previous quest to unlock this challenge!</p>
+            <button class="return-btn" onclick="returnToMap()" style="margin-top: 15px;">Return to Quest Map</button>
+        </div>
     </div>
 
     <script>
-        // Simple game state
+        // Game state management
         let currentQuestionIndex = 0;
         let score = 0;
         let answered = false;
-        
-        // Questions for the foundation quest
-        const foundationQuestions = [
-            {
-                category: "Assessment Principles",
-                question: "Which assessment approach is most appropriate for evaluating critical thinking skills in nursing students?",
-                options: [
-                    "Multiple choice tests with single correct answers",
-                    "Case study analysis with written reflection",
-                    "Memorization-based quizzes",
-                    "True/false questions"
-                ],
-                correct: 1,
-                explanation: "Case study analysis with written reflection allows students to demonstrate higher-order thinking skills, analyze complex situations, and justify their reasoning - all key components of critical thinking assessment."
-            },
-            {
-                category: "Formative Assessment",
-                question: "What is the key characteristic that distinguishes formative from summative assessment?",
-                options: [
-                    "Formative assessments are always ungraded",
-                    "Formative assessments provide feedback to improve learning",
-                    "Formative assessments are shorter in duration",
-                    "Formative assessments only use technology tools"
-                ],
-                correct: 1,
-                explanation: "The defining characteristic of formative assessment is that it provides ongoing feedback to both students and instructors to identify learning gaps and adjust instruction accordingly."
-            },
-            {
-                category: "Assessment Design",
-                question: "Which principle is most important when designing competency-based assessments for nursing students?",
-                options: [
-                    "Align assessments with specific learning outcomes",
-                    "Make assessments as challenging as possible",
-                    "Include multiple question formats",
-                    "Use standardized test questions only"
-                ],
-                correct: 0,
-                explanation: "Alignment between assessments and specific learning outcomes ensures that evaluations accurately measure whether students have achieved the intended competencies."
-            }
-        ];
+        let currentQuestId = 0;
+        let currentQuestType = '';
+        let completedQuests = [];
 
-        function startQuest(questType) {
-            document.getElementById('quest-map').style.display = 'none';
-            document.getElementById('game-screen').style.display = 'block';
-            document.getElementById('quest-complete').style.display = 'none';
+        // Quest data structure
+        const questData = {
+            foundations: {
+                name: "Assessment Foundations",
+                badge: { icon: "🏛️", name: "Foundation Master", desc: "Complete the Assessment Foundations quest" },
+                questions: [
+                    {
+                        category: "Assessment Principles",
+                        question: "Which assessment approach is most appropriate for evaluating critical thinking skills in nursing students?",
+                        options: [
+                            "Multiple choice tests with single correct answers",
+                            "Case study analysis with written reflection",
+                            "Memorization-based quizzes",
+                            "True/false questions"
+                        ],
+                        correct: 1,
+                        explanation: "Case study analysis with written reflection allows students to demonstrate higher-order thinking skills, analyze complex situations, and justify their reasoning - all key components of critical thinking assessment."
+                    },
+                    {
+                        category: "Formative Assessment",
+                        question: "What is the key characteristic that distinguishes formative from summative assessment?",
+                        options: [
+                            "Formative assessments are always ungraded",
+                            "Formative assessments provide feedback to improve learning",
+                            "Formative assessments are shorter in duration",
+                            "Formative assessments only use technology tools"
+                        ],
+                        correct: 1,
+                        explanation: "The defining characteristic of formative assessment is that it provides ongoing feedback to both students and instructors to identify learning gaps and adjust instruction accordingly."
+                    },
+                    {
+                        category: "Assessment Design",
+                        question: "Which principle is most important when designing competency-based assessments for nursing students?",
+                        options: [
+                            "Align assessments with specific learning outcomes",
+                            "Make assessments as challenging as possible",
+                            "Include multiple question formats",
+                            "Use standardized test questions only"
+                        ],
+                        correct: 0,
+                        explanation: "Alignment between assessments and specific learning outcomes ensures that evaluations accurately measure whether students have achieved the intended competencies."
+                    },
+                    {
+                        category: "Rubric Development",
+                        scenario: "You're developing a rubric for evaluating nursing students' clinical performance during patient care scenarios.",
+                        question: "What is the most effective approach for creating clear performance criteria in your rubric?",
+                        options: [
+                            "Use vague descriptors to allow for flexibility",
+                            "Create specific, observable, and measurable criteria",
+                            "Copy criteria from other nursing programs",
+                            "Focus only on technical skills, not communication"
+                        ],
+                        correct: 1,
+                        explanation: "Effective rubrics use specific, observable, and measurable criteria that clearly define what constitutes different levels of performance, making assessment more reliable and providing clear expectations for students."
+                    },
+                    {
+                        category: "Authentic Assessment",
+                        scenario: "Your nursing program wants to move beyond traditional testing to more authentic assessments that mirror real-world practice.",
+                        question: "Which assessment method best represents authentic assessment in nursing education?",
+                        options: [
+                            "Standardized multiple-choice exams",
+                            "Simulated patient interactions with documentation",
+                            "Memorization of drug dosage calculations",
+                            "Written essays about nursing theory"
+                        ],
+                        correct: 1,
+                        explanation: "Simulated patient interactions with documentation closely mirror real nursing practice, requiring students to apply knowledge, skills, and clinical reasoning in realistic contexts while demonstrating competency in actual nursing tasks."
+                    }
+                ]
+            },
+            technology: {
+                name: "Technology Integration Mastery",
+                badge: { icon: "💻", name: "Tech Innovator", desc: "Complete the Technology Integration quest" },
+                questions: [
+                    {
+                        category: "Educational Technology",
+                        question: "What is the primary benefit of incorporating Open Educational Resources (OER) in nursing curricula?",
+                        options: [
+                            "They are always higher quality than commercial textbooks",
+                            "They reduce costs while maintaining educational quality",
+                            "They automatically update content",
+                            "They eliminate the need for instructor preparation"
+                        ],
+                        correct: 1,
+                        explanation: "OERs reduce financial barriers for students while maintaining educational quality, making nursing education more accessible and affordable without compromising learning outcomes."
+                    },
+                    {
+                        category: "Learning Management Systems",
+                        scenario: "You're implementing a new LMS for your nursing program and need to ensure it supports diverse learning needs.",
+                        question: "Which feature is most critical for supporting inclusive learning in an LMS?",
+                        options: [
+                            "Advanced analytics and reporting",
+                            "Built-in accessibility features and universal design",
+                            "Integration with social media platforms",
+                            "Automated grading for all assignments"
+                        ],
+                        correct: 1,
+                        explanation: "Built-in accessibility features and universal design principles ensure that all students, including those with disabilities, can fully participate in online learning environments."
+                    },
+                    {
+                        category: "Digital Assessment Tools",
+                        question: "When using technology-enhanced assessments, what is the most important consideration for maintaining academic integrity?",
+                        options: [
+                            "Using the most expensive proctoring software",
+                            "Implementing multiple security measures while preserving learning focus",
+                            "Eliminating all open-book assessments",
+                            "Requiring students to take all exams on campus"
+                        ],
+                        correct: 1,
+                        explanation: "Effective academic integrity measures should be comprehensive yet not interfere with the learning process, balancing security with educational goals and student experience."
+                    },
+                    {
+                        category: "Mobile Learning",
+                        scenario: "Your nursing students frequently use mobile devices and you want to leverage this for learning.",
+                        question: "What is the most effective way to implement mobile learning in nursing education?",
+                        options: [
+                            "Replace all textbooks with mobile apps",
+                            "Create bite-sized, just-in-time learning modules",
+                            "Use mobile devices only for entertainment",
+                            "Require students to purchase specific tablets"
+                        ],
+                        correct: 1,
+                        explanation: "Bite-sized, just-in-time learning modules work well on mobile devices and support microlearning approaches that fit into busy nursing students' schedules."
+                    },
+                    {
+                        category: "AI in Education",
+                        question: "How can AI be most ethically integrated into nursing education assessment?",
+                        options: [
+                            "Replace all human instructors with AI",
+                            "Use AI to provide personalized feedback and learning paths",
+                            "Let AI make all final grading decisions",
+                            "Use AI only for administrative tasks"
+                        ],
+                        correct: 1,
+                        explanation: "AI can enhance education by providing personalized feedback and adaptive learning paths while maintaining human oversight and decision-making in critical assessment areas."
+                    }
+                ]
+            },
+            simulation: {
+                name: "Simulation Excellence",
+                badge: { icon: "🤖", name: "Simulation Expert", desc: "Complete the Simulation Excellence quest" },
+                questions: [
+                    {
+                        category: "Simulation Design",
+                        question: "What is the most critical element in designing effective nursing simulations?",
+                        options: [
+                            "Using the most expensive equipment",
+                            "Clear learning objectives aligned with intended outcomes",
+                            "Making scenarios as complex as possible",
+                            "Focusing only on technical skills"
+                        ],
+                        correct: 1,
+                        explanation: "Clear learning objectives that align with intended outcomes ensure that simulation experiences are purposeful and measurable, regardless of equipment sophistication."
+                    },
+                    {
+                        category: "OSCE Development",
+                        scenario: "You're developing an OSCE (Objective Structured Clinical Examination) for final-year nursing students.",
+                        question: "Which approach best ensures reliability and validity in OSCE design?",
+                        options: [
+                            "Using only standardized patients",
+                            "Standardized stations with clear scoring criteria and trained evaluators",
+                            "Making each station completely different",
+                            "Focusing only on rare clinical conditions"
+                        ],
+                        correct: 1,
+                        explanation: "Standardized stations with clear scoring criteria and trained evaluators ensure consistency and fairness in assessment while maintaining the validity of the evaluation process."
+                    },
+                    {
+                        category: "Debriefing Techniques",
+                        question: "What is the most effective debriefing approach following a high-stakes simulation?",
+                        options: [
+                            "Immediate critique of all mistakes",
+                            "Structured reflection focusing on learning objectives",
+                            "General discussion without specific focus",
+                            "Written reflection only"
+                        ],
+                        correct: 1,
+                        explanation: "Structured reflection that focuses on learning objectives helps students process their experience effectively and reinforces key learning points from the simulation."
+                    },
+                    {
+                        category: "Standardized Patients",
+                        scenario: "You're training standardized patients for a communication skills assessment with nursing students.",
+                        question: "What is the most important aspect of standardized patient training?",
+                        options: [
+                            "Medical accuracy only",
+                            "Consistency in portrayal and feedback delivery",
+                            "Dramatic acting ability",
+                            "Personal healthcare experience"
+                        ],
+                        correct: 1,
+                        explanation: "Consistency in portrayal and feedback delivery ensures that all students receive equivalent assessment experiences and reliable evaluation of their performance."
+                    },
+                    {
+                        category: "Virtual Reality Training",
+                        question: "What is the primary advantage of VR simulation in nursing education?",
+                        options: [
+                            "It's always more cost-effective than traditional methods",
+                            "Students can practice high-risk scenarios safely and repeatedly",
+                            "It completely replaces the need for clinical rotations",
+                            "It requires no instructor supervision"
+                        ],
+                        correct: 1,
+                        explanation: "VR simulation allows students to practice high-risk, low-frequency scenarios safely and repeatedly without risk to patients, building confidence and competence before real clinical encounters."
+                    }
+                ]
+            },
+            aiethics: {
+                name: "AI & Ethics Navigator",
+                badge: { icon: "🛡️", name: "AI Ethics Champion", desc: "Complete the AI & Ethics Navigator quest" },
+                questions: [
+                    {
+                        category: "AI Ethics",
+                        question: "What is the most important ethical consideration when using AI in nursing education?",
+                        options: [
+                            "Ensuring AI systems are cost-effective",
+                            "Maintaining transparency and human oversight in decision-making",
+                            "Using AI for all possible applications",
+                            "Replacing human judgment with AI recommendations"
+                        ],
+                        correct: 1,
+                        explanation: "Transparency and human oversight ensure that AI serves as a tool to enhance education while maintaining ethical standards and human responsibility for important decisions."
+                    },
+                    {
+                        category: "Deepfake Detection",
+                        scenario: "You discover that synthetic media (deepfakes) might be used to create false educational content in healthcare.",
+                        question: "What is the best approach to address deepfake concerns in nursing education?",
+                        options: [
+                            "Ban all video content from courses",
+                            "Educate students on detection methods and verify content sources",
+                            "Only use content from one source",
+                            "Ignore the issue as it's too complex"
+                        ],
+                        correct: 1,
+                        explanation: "Education about detection methods and source verification empowers both educators and students to critically evaluate content while maintaining the benefits of multimedia learning."
+                    },
+                    {
+                        category: "Data Privacy",
+                        question: "When implementing AI-powered learning analytics, what is the primary privacy concern?",
+                        options: [
+                            "Students might learn too efficiently",
+                            "Protecting student data from unauthorized access and misuse",
+                            "AI systems might become too accurate",
+                            "Technology costs might increase"
+                        ],
+                        correct: 1,
+                        explanation: "Student data protection is paramount, requiring robust security measures, clear consent processes, and limited data collection aligned with educational purposes."
+                    },
+                    {
+                        category: "Bias in AI",
+                        scenario: "An AI system used for student assessment shows different performance patterns across demographic groups.",
+                        question: "What is the most appropriate response to potential AI bias in educational assessment?",
+                        options: [
+                            "Continue using the system as long as it's efficient",
+                            "Immediately audit the system and address identified biases",
+                            "Only use the system for certain student groups",
+                            "Replace it with a completely different technology"
+                        ],
+                        correct: 1,
+                        explanation: "Prompt auditing and bias remediation is essential to ensure fair and equitable assessment for all students, maintaining the integrity of educational evaluation."
+                    },
+                    {
+                        category: "AI Transparency",
+                        question: "Why is algorithmic transparency important in AI-assisted nursing education?",
+                        options: [
+                            "It makes the technology more expensive",
+                            "Students and educators can understand and trust AI recommendations",
+                            "It slows down the learning process",
+                            "It's required by all healthcare regulations"
+                        ],
+                        correct: 1,
+                        explanation: "Transparency builds trust and enables informed decision-making, allowing educators and students to understand how AI recommendations are generated and when to rely on them."
+                    }
+                ]
+            },
+            resources: {
+                name: "Strategic Resource Allocation",
+                badge: { icon: "💡", name: "Resource Strategist", desc: "Complete the Strategic Resource Allocation quest" },
+                questions: [
+                    {
+                        category: "Budget Planning",
+                        scenario: "Your nursing program has a limited budget and must choose between updating simulation equipment or expanding online learning platforms.",
+                        question: "What framework should guide this resource allocation decision?",
+                        options: [
+                            "Choose the most expensive option",
+                            "Analyze impact on learning outcomes and student success",
+                            "Follow what other schools are doing",
+                            "Alternate between options each year"
+                        ],
+                        correct: 1,
+                        explanation: "Resource allocation decisions should prioritize educational impact and student success metrics, ensuring investments align with program goals and demonstrated effectiveness."
+                    },
+                    {
+                        category: "Faculty Development",
+                        question: "When resources for faculty development are limited, what should be the priority focus?",
+                        options: [
+                            "Send faculty to expensive conferences only",
+                            "Invest in skills that directly impact student learning and engagement",
+                            "Focus only on research development",
+                            "Provide equal training to all faculty regardless of need"
+                        ],
+                        correct: 1,
+                        explanation: "Faculty development investments should prioritize skills that directly enhance teaching effectiveness and student learning outcomes, maximizing the impact on educational quality."
+                    },
+                    {
+                        category: "Technology Infrastructure",
+                        scenario: "Your institution needs to upgrade its technology infrastructure but has competing demands from multiple departments.",
+                        question: "How should nursing education priorities be balanced with institutional needs?",
+                        options: [
+                            "Nursing should get first priority always",
+                            "Collaborate to identify shared benefits and strategic alignment",
+                            "Wait for other departments to upgrade first",
+                            "Pursue completely separate technology solutions"
+                        ],
+                        correct: 1,
+                        explanation: "Collaborative planning that identifies shared benefits and strategic alignment often results in more comprehensive solutions and better resource utilization across the institution."
+                    },
+                    {
+                        category: "Space Utilization",
+                        question: "What is the most effective approach to optimizing limited classroom and lab space in nursing programs?",
+                        options: [
+                            "First-come, first-served scheduling",
+                            "Data-driven analysis of usage patterns and flexible design",
+                            "Assign permanent spaces to each course",
+                            "Reduce class sizes to fit available space"
+                        ],
+                        correct: 1,
+                        explanation: "Data-driven analysis of actual usage patterns combined with flexible space design maximizes utilization efficiency and supports diverse learning activities."
+                    },
+                    {
+                        category: "Sustainability Planning",
+                        scenario: "You need to develop a long-term resource plan that ensures program sustainability while maintaining quality.",
+                        question: "What is the key principle for sustainable resource management in nursing education?",
+                        options: [
+                            "Always choose the least expensive options",
+                            "Balance current needs with future capacity and quality maintenance",
+                            "Focus only on short-term cost savings",
+                            "Avoid any new investments until funding increases"
+                        ],
+                        correct: 1,
+                        explanation: "Sustainable resource management requires balancing immediate needs with long-term capacity building and quality maintenance, ensuring program viability and continuous improvement."
+                    }
+                ]
+            }
+        };
+
+        // Initialize the game
+        window.onload = function() {
+            updateQuestMap();
+        };
+
+        function updateQuestMap() {
+            // Update quest availability based on completed quests
+            for (let i = 0; i < 5; i++) {
+                const questCard = document.getElementById(`quest-${i}`);
+                const badge = document.getElementById(`badge-${i}`);
+                
+                if (completedQuests.includes(i)) {
+                    // Mark as completed
+                    questCard.classList.remove('locked');
+                    questCard.classList.add('completed');
+                    questCard.querySelector('.quest-status').innerHTML = '✅ Completed';
+                    questCard.querySelector('.quest-status').className = 'quest-status status-completed';
+                    badge.classList.add('earned');
+                } else if (i === 0 || completedQuests.includes(i - 1)) {
+                    // Available (first quest or previous quest completed)
+                    questCard.classList.remove('locked');
+                    questCard.querySelector('.quest-status').innerHTML = '🚀 Available';
+                    questCard.querySelector('.quest-status').className = 'quest-status status-available';
+                }
+            }
             
+            // Award Quest Master badge if all quests completed
+            if (completedQuests.length === 5) {
+                document.getElementById('badge-5').classList.add('earned');
+            }
+        }
+
+        function startQuest(questType, questId) {
+            // Check if quest is available
+            if (questId > 0 && !completedQuests.includes(questId - 1)) {
+                showLockedMessage();
+                return;
+            }
+            
+            // Check if quest is already completed
+            if (completedQuests.includes(questId)) {
+                // Allow replay but show a message
+                if (!confirm("You've already completed this quest. Would you like to play again?")) {
+                    return;
+                }
+            }
+            
+            currentQuestType = questType;
+            currentQuestId = questId;
             currentQuestionIndex = 0;
             score = 0;
             answered = false;
             
+            document.getElementById('quest-map').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+            document.getElementById('quest-complete').style.display = 'none';
+            document.getElementById('locked-message').style.display = 'none';
+            
+            document.getElementById('current-quest-name').textContent = questData[questType].name;
+            document.getElementById('total-questions').textContent = questData[questType].questions.length;
+            
             loadQuestion();
         }
 
+        function showLockedMessage() {
+            document.getElementById('quest-map').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('quest-complete').style.display = 'none';
+            document.getElementById('locked-message').style.display = 'block';
+        }
+
         function loadQuestion() {
-            const question = foundationQuestions[currentQuestionIndex];
+            const questions = questData[currentQuestType].questions;
+            const question = questions[currentQuestionIndex];
             
             document.getElementById('category').textContent = question.category;
             document.getElementById('current-question').textContent = currentQuestionIndex + 1;
-            document.getElementById('total-questions').textContent = foundationQuestions.length;
             document.getElementById('question-text').textContent = question.question;
             document.getElementById('score').textContent = score;
+            
+            // Handle scenario if present
+            const scenarioDiv = document.getElementById('scenario');
+            if (question.scenario) {
+                scenarioDiv.innerHTML = `<div class="scenario-box"><strong>Scenario:</strong> ${question.scenario}</div>`;
+            } else {
+                scenarioDiv.innerHTML = '';
+            }
             
             const optionsContainer = document.getElementById('options');
             optionsContainer.innerHTML = '';
@@ -653,7 +1040,8 @@
             if (answered) return;
             
             answered = true;
-            const question = foundationQuestions[currentQuestionIndex];
+            const questions = questData[currentQuestType].questions;
+            const question = questions[currentQuestionIndex];
             const options = document.querySelectorAll('.option');
             
             options.forEach((option, index) => {
@@ -692,7 +1080,7 @@
         function nextQuestion() {
             currentQuestionIndex++;
             
-            if (currentQuestionIndex >= foundationQuestions.length) {
+            if (currentQuestionIndex >= questData[currentQuestType].questions.length) {
                 completeQuest();
             } else {
                 loadQuestion();
@@ -703,18 +1091,42 @@
             document.getElementById('game-screen').style.display = 'none';
             document.getElementById('quest-complete').style.display = 'block';
             
-            const percentage = (score / (foundationQuestions.length * 20)) * 100;
-            document.getElementById('final-score').textContent = `${percentage.toFixed(0)}% (${score}/${foundationQuestions.length * 20} points)`;
+            const maxScore = questData[currentQuestType].questions.length * 20;
+            const percentage = (score / maxScore) * 100;
+            document.getElementById('final-score').textContent = `${percentage.toFixed(0)}% (${score}/${maxScore} points)`;
             
-            // Award the foundation badge
-            const badges = document.querySelectorAll('.badge');
-            badges[0].classList.add('earned');
+            // Award badge and mark quest as completed
+            if (!completedQuests.includes(currentQuestId)) {
+                completedQuests.push(currentQuestId);
+                // Note: Progress saves during this session only
+                
+                const badge = questData[currentQuestType].badge;
+                document.getElementById('new-badge-icon').textContent = badge.icon;
+                document.getElementById('new-badge-name').textContent = badge.name;
+                document.getElementById('new-badge-desc').textContent = badge.desc;
+            }
+            
+            // Show appropriate completion message based on score
+            let message = "";
+            if (percentage >= 90) {
+                message = "🌟 Outstanding mastery! You've demonstrated exceptional understanding of these concepts.";
+            } else if (percentage >= 80) {
+                message = "🎯 Great work! You have a solid grasp of these important concepts.";
+            } else if (percentage >= 70) {
+                message = "👍 Good effort! Consider reviewing the concepts you missed for better retention.";
+            } else {
+                message = "📚 Keep learning! Review the material and try again to strengthen your understanding.";
+            }
+            document.getElementById('completion-message').innerHTML = `<p style="font-size: 1.2em; margin: 20px 0;">${message}</p>`;
         }
 
         function returnToMap() {
             document.getElementById('quest-map').style.display = 'block';
             document.getElementById('game-screen').style.display = 'none';
             document.getElementById('quest-complete').style.display = 'none';
+            document.getElementById('locked-message').style.display = 'none';
+            
+            updateQuestMap();
         }
     </script>
 </body>
