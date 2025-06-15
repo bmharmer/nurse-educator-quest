@@ -587,7 +587,7 @@
         let currentQuestType = '';
         let completedQuests = [];
 
-        // Quest data structure
+        // Quest data with challenging questions for MSN Education track
         const questData = {
             foundations: {
                 name: "Assessment Foundations",
@@ -934,94 +934,6 @@
                     }
                 ]
             }
-        };                                        "Replace it with a completely different technology"
-                        ],
-                        correct: 1,
-                        explanation: "Prompt auditing and bias remediation is essential to ensure fair and equitable assessment for all students, maintaining the integrity of educational evaluation."
-                    },
-                    {
-                        category: "AI Transparency",
-                        question: "Why is algorithmic transparency important in AI-assisted nursing education?",
-                        options: [
-                            "It makes the technology more expensive",
-                            "Students and educators can understand and trust AI recommendations",
-                            "It slows down the learning process",
-                            "It's required by all healthcare regulations"
-                        ],
-                        correct: 1,
-                        explanation: "Transparency builds trust and enables informed decision-making, allowing educators and students to understand how AI recommendations are generated and when to rely on them."
-                    }
-                ]
-            },
-            resources: {
-                name: "Strategic Resource Allocation",
-                badge: { icon: "💡", name: "Resource Strategist", desc: "Complete the Strategic Resource Allocation quest" },
-                questions: [
-                    {
-                        category: "Evidence-Based Resource Allocation",
-                        scenario: "Your nursing program has $100,000 to allocate between simulation equipment upgrades, faculty development, or expanded clinical partnerships. Enrollment is increasing but faculty retention is challenging.",
-                        question: "Which evidence-based framework should guide this resource allocation decision to maximize educational outcomes?",
-                        options: [
-                            "Cost-per-student calculation only",
-                            "Return on Educational Investment (ROEI) analysis incorporating student outcomes, faculty retention, and long-term program sustainability",
-                            "Industry benchmarking of peer institutions",
-                            "Equal distribution across all three options"
-                        ],
-                        correct: 1,
-                        explanation: "ROEI analysis provides a comprehensive framework that considers multiple outcome measures (student success, faculty retention, program sustainability) and their interconnected effects, enabling data-driven decisions that address root causes rather than symptoms."
-                    },
-                    {
-                        category: "Technology Infrastructure Planning",
-                        question: "When planning technology infrastructure for nursing education, what is the most critical factor for ensuring long-term sustainability and educational effectiveness?",
-                        options: [
-                            "Purchasing the most advanced technology available",
-                            "Interoperability and scalability aligned with pedagogical goals and institutional capacity",
-                            "Choosing the lowest-cost option",
-                            "Following technology trends in other industries"
-                        ],
-                        correct: 1,
-                        explanation: "Interoperability ensures systems work together effectively, scalability allows for growth and adaptation, and pedagogical alignment ensures technology serves educational goals rather than driving them - creating sustainable technology ecosystems."
-                    },
-                    {
-                        category: "Faculty Development ROI",
-                        scenario: "Faculty development funding could support either sending 2 faculty to expensive national conferences or providing simulation training for 10 faculty members locally.",
-                        question: "Which factor is most important for determining the optimal allocation of faculty development resources?",
-                        options: [
-                            "Number of faculty reached per dollar spent",
-                            "Potential for knowledge transfer and sustainable skill development that impacts student learning outcomes",
-                            "Prestige of the development opportunity",
-                            "Faculty preference and satisfaction"
-                        ],
-                        correct: 1,
-                        explanation: "Sustainable skill development with knowledge transfer potential maximizes impact on student learning outcomes - the ultimate goal of faculty development investment - while ensuring skills remain within the institution long-term."
-                    },
-                    {
-                        category: "Space Utilization Analytics",
-                        question: "When analyzing space utilization data for nursing labs and classrooms, what metric provides the most actionable information for resource optimization?",
-                        options: [
-                            "Total hours of scheduled use per week",
-                            "Utilization efficiency ratio considering scheduled vs. optimal capacity and learning activity alignment",
-                            "Number of different courses using each space",
-                            "Student satisfaction with physical facilities"
-                        ],
-                        correct: 1,
-                        explanation: "Utilization efficiency ratio considers both capacity optimization and learning activity alignment, providing actionable data for space redesign, scheduling improvements, and resource reallocation that supports educational effectiveness."
-                    },
-                    {
-                        category: "Sustainability Planning",
-                        scenario: "Your nursing program needs to develop a 5-year strategic plan for resource allocation that balances current needs with future uncertainties in healthcare education.",
-                        question: "What approach best ensures resource allocation sustainability while maintaining educational quality?",
-                        options: [
-                            "Focus exclusively on maintaining current programs",
-                            "Scenario-based planning with flexible resource allocation and continuous environmental scanning",
-                            "Copy successful strategies from similar programs",
-                            "Delay major investments until the future becomes clearer"
-                        ],
-                        correct: 1,
-                        explanation: "Scenario-based planning with continuous environmental scanning enables adaptive resource allocation that responds to changing healthcare needs, technological advances, and educational innovations while maintaining core program quality."
-                    }
-                ]
-            }
         };
 
         // Initialize the game
@@ -1190,7 +1102,6 @@
             // Award badge and mark quest as completed
             if (!completedQuests.includes(currentQuestId)) {
                 completedQuests.push(currentQuestId);
-                // Note: Progress saves during this session only
                 
                 const badge = questData[currentQuestType].badge;
                 document.getElementById('new-badge-icon').textContent = badge.icon;
